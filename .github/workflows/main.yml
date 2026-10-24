@@ -31,7 +31,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run React tests
         run: npm test -- --watchAll=false
@@ -55,33 +55,24 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build React app
+      - name: Build React application
         run: npm run build
 
-      - name: Detect build folder
-        id: output
-        shell: bash
+      - name: Verify build output
         run: |
-          if [ -d "dist" ]; then
-            echo "folder=dist" >> "$GITHUB_OUTPUT"
-          elif [ -d "build" ]; then
-            echo "folder=build" >> "$GITHUB_OUTPUT"
-          else
-            echo "Error: Build folder not found!"
-            ls -la
-            exit 1
-          fi
+          test -f build/index.html
+          ls -la build
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload website files
+      - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.output.outputs.folder }}
+          path: ./build
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@v4
